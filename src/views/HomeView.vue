@@ -1,17 +1,17 @@
 <template>
   <div class="min-h-screen pb-20">
     <!-- Hero Section -->
-    <header class="py-16 md:py-32 text-center px-4 animate-fade-in-up">
+    <header class="py-16 md:py-32 text-center px-4 animate-fade-in-down">
       <h1 class="text-5xl md:text-8xl font-serif font-bold mb-4 md:mb-6 text-zen-text-light dark:text-zen-text-dark tracking-tight leading-tight">
         Lazarus<span class="italic font-light text-zen-accent-light dark:text-zen-accent-dark">Blog</span>
       </h1>
-      <p class="text-base md:text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto font-light leading-relaxed px-4">
+      <p class="text-base md:text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto font-light leading-relaxed px-4 animate-fade-in-delayed">
         Curated thoughts on technology, design, and the art of clarity.
       </p>
     </header>
 
     <!-- Filters & Search -->
-    <div class="container mx-auto px-4 mb-12 md:mb-20">
+    <div class="container mx-auto px-4 mb-12 md:mb-20 animate-fade-in-up-delayed">
       <div class="flex flex-col items-center gap-6 md:gap-8">
         
         <!-- Search -->
@@ -65,16 +65,17 @@
         </div>
       </div>
 
-      <div v-else-if="filteredArticles.length === 0" class="text-center py-20 text-gray-500">
+      <div v-else-if="filteredArticles.length === 0" class="text-center py-20 text-gray-500 animate-fade-in">
         <p>No articles found matching your criteria.</p>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <ArticleCard 
-          v-for="article in filteredArticles" 
+          v-for="(article, index) in filteredArticles" 
           :key="article.id" 
           :article="article"
-          class="animate-fade-in"
+          class="animate-fade-in-up opacity-0"
+          :style="{ animationDelay: `${index * 100}ms` }"
         />
       </div>
     </div>

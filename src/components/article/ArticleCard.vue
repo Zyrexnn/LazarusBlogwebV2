@@ -1,5 +1,5 @@
 <template>
-  <div class="group relative flex flex-col gap-3 md:gap-4 p-0 transition-all duration-300">
+  <div class="group relative flex flex-col gap-3 md:gap-4 p-0 transition-all duration-500 hover:-translate-y-2 cursor-pointer">
     <div v-if="article.image_url" class="aspect-[3/2] w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-800">
       <img :src="article.image_url" :alt="article.title" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
       <div class="absolute inset-0 bg-black/5 dark:bg-black/20 group-hover:bg-transparent transition-colors"></div>
@@ -20,7 +20,7 @@
       </h3>
 
       <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 line-clamp-3 font-light leading-relaxed">
-        {{ article.content.substring(0, 160) }}...
+        {{ stripMarkdown(article.content) }}
       </p>
 
       <div class="flex items-center text-xs md:text-sm font-medium text-zen-text-light dark:text-zen-text-dark opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300 pointer-events-none">
@@ -31,10 +31,21 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({ 
   article: {
     type: Object,
     required: true
   }
 })
+
+function stripMarkdown(text) {
+  if (!text) return ''
+  return text
+    .replace(/[#*_~`]/g, '')     // Remove bold/italic/code markers
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Keep text of links
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')  // Remove images
+    .replace(/^\s*[-+*]\s+/gm, '') // Remove list bullets
+    .split('\n').join(' ') // Merge lines
+    .substring(0, 160) + '...'
+}
 </script>

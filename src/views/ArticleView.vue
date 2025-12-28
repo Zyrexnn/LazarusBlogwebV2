@@ -12,33 +12,60 @@
 
   <div v-else class="min-h-screen pb-20 bg-white dark:bg-zinc-950 transition-colors animate-fade-in">
     <!-- Hero Image -->
-    <div v-if="article.image_url" class="h-[50vh] w-full overflow-hidden relative">
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white dark:to-zinc-950 opacity-90"></div>
-      <img :src="article.image_url" class="w-full h-full object-cover" :alt="article.title" />
+    <!-- Hero Image -->
+    <!-- Hero Image -->
+    <div v-if="article.image_url" class="relative w-full h-[50vh] md:h-[70vh] overflow-hidden group">
+      <!-- Image with slow zoom effect -->
+      <img :src="article.image_url" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" :alt="article.title" />
       
-      <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 max-w-4xl mx-auto">
-        <span class="inline-block px-3 py-1 bg-zen-accent-light dark:bg-zen-accent-dark text-white text-xs font-bold uppercase tracking-widest mb-4 rounded-full">
-          {{ article.category }}
-        </span>
-        <h1 class="text-4xl md:text-6xl font-serif font-bold text-zen-text-light dark:text-zen-text-dark leading-tight mb-4">
-          {{ article.title }}
-        </h1>
-        <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-          <span>{{ new Date(article.created_at).toLocaleDateString(undefined, { dateStyle: 'long' }) }}</span>
-          <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
-          <span>{{ readingTime }} min read</span>
+      <!-- Overlay: Always dark gradient for text legibility -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+      
+      <!-- Content -->
+      <div class="absolute inset-0 flex flex-col justify-end items-center text-center p-6 md:p-12 pb-10 md:pb-16 px-4">
+        <div class="max-w-4xl mx-auto animate-fade-in-up">
+            <span class="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md text-white border border-white/20 text-xs font-bold uppercase tracking-[0.2em] mb-4 md:mb-6 rounded-full">
+            {{ article.category }}
+            </span>
+            <h1 class="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight mb-6 md:mb-8 drop-shadow-xl">
+            {{ article.title }}
+            </h1>
+            <!-- Meta -->
+             <div class="flex items-center justify-center gap-4 md:gap-6 text-xs md:text-sm text-white/90 font-light tracking-wide uppercase">
+                <span>{{ new Date(article.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
+                <span class="w-1 h-1 bg-white/50 rounded-full"></span>
+                <span>{{ readingTime }} min read</span>
+            </div>
         </div>
       </div>
     </div>
+    
+    <!-- Title-only Hero (if no image) -->
+    <div v-else class="pt-32 pb-16 px-4 text-center max-w-4xl mx-auto">
+         <span class="inline-block px-4 py-1.5 bg-gray-100 dark:bg-zinc-800 text-zen-text-light dark:text-zen-text-dark text-xs font-bold uppercase tracking-[0.2em] mb-6 rounded-full">
+          {{ article.category }}
+        </span>
+        <h1 class="text-5xl md:text-7xl font-serif font-bold text-zen-text-light dark:text-zen-text-dark leading-tight mb-6">
+          {{ article.title }}
+        </h1>
+        <div class="flex items-center justify-center gap-6 text-sm md:text-base text-gray-500 font-light tracking-wide">
+          <span>{{ new Date(article.created_at).toLocaleDateString(undefined, { dateStyle: 'long' }) }}</span>
+          <span class="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+          <span>{{ readingTime }} min read</span>
+        </div>
+    </div>
 
     <!-- Content -->
-    <main class="container mx-auto px-4 max-w-3xl py-12">
-      <article class="prose prose-lg dark:prose-invert prose-headings:font-serif prose-p:font-sans prose-p:leading-relaxed prose-img:rounded-xl mx-auto">
-        <!-- Render content as simple text with line breaks if plain text, or HTML if simple HTML -->
-        <!-- For MVP, assuming plain text or simple markdown-like structure handled by css whitespace -->
-        <div class="whitespace-pre-wrap font-light text-lg text-gray-800 dark:text-gray-200">
-            {{ article.content }}
-        </div>
+    <main class="container mx-auto px-6 md:px-0 max-w-3xl py-12">
+      <article class="prose prose-lg md:prose-xl dark:prose-invert 
+        prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight 
+        prose-p:font-sans prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-p:leading-8 prose-p:mb-8
+        prose-a:text-zen-accent-light dark:prose-a:text-zen-accent-dark prose-a:no-underline hover:prose-a:underline
+        prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-10 prose-img:w-full
+        prose-blockquote:border-l-4 prose-blockquote:border-zen-accent-light dark:prose-blockquote:border-zen-accent-dark prose-blockquote:italic prose-blockquote:pl-6
+        mx-auto text-left break-words article-content">
+        <!-- Markdown Rendered Content -->
+        <div v-html="renderMarkdown(article.content)" class="whitespace-pre-wrap leading-relaxed"></div>
       </article>
 
       <!-- Actions -->
@@ -61,7 +88,7 @@
           <component :is="ShareIcon" class="w-5 h-5" />
         </button>
       </div>
-      
+
       <!-- Recommendations -->
       <section v-if="relatedArticles.length > 0" class="mt-16">
         <h3 class="text-2xl font-serif font-bold mb-8 text-black dark:text-white">You might also like</h3>
@@ -84,8 +111,14 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { marked } from 'marked'
 import { Heart, Share2 } from 'lucide-vue-next'
 import ChatAI from '../components/ai/ChatAI.vue'
+
+// Render standard markdown with breaks enabled (respects single Enter)
+function renderMarkdown(text) {
+  return marked.parse(text || '', { breaks: true, gfm: true })
+}
 
 const HeartIcon = Heart
 const ShareIcon = Share2
@@ -186,3 +219,7 @@ onMounted(() => {
     fetchArticle()
 })
 </script>
+
+<style scoped>
+/* No hack needed - using standard markdown rendering */
+</style>

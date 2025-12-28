@@ -22,7 +22,7 @@
         <h1 class="text-3xl font-serif font-bold">Dashboard</h1>
         <div class="flex gap-4">
            <span class="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-full text-sm flex items-center">Admin: Lazarus</span>
-           <button @click="showModal = true" class="px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium">
+           <button @click="openCreateModal" class="px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium">
              + New Article
            </button>
         </div>
@@ -62,6 +62,7 @@
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{{ new Date(article.created_at).toLocaleDateString() }}</td>
                 <td class="px-6 py-4 text-right gap-2 whitespace-nowrap">
+                    <button @click="openEditModal(article)" class="text-blue-500 hover:underline text-sm mr-4">Edit</button>
                     <button @click="deleteArticle(article.id)" class="text-red-500 hover:underline text-sm ml-4">Delete</button>
                 </td>
                 </tr>
@@ -71,22 +72,36 @@
       </div>
     </div>
     
-    <!-- Modal for Create -->
+    <!-- Modal for Create/Edit -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div class="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
         <div class="p-6 border-b border-gray-100 dark:border-zinc-800 flex justify-between">
-          <h3 class="font-serif font-bold text-xl">Write Article</h3>
+          <h3 class="font-serif font-bold text-xl">{{ isEditing ? 'Edit Article' : 'Write Article' }}</h3>
           <button @click="showModal = false" class="text-gray-400 hover:text-gray-600">Close</button>
         </div>
-        <form @submit.prevent="createArticle" class="p-6 space-y-4">
+        <form @submit.prevent="saveArticle" class="p-6 space-y-4">
           <div>
             <label class="label">Title</label>
             <input v-model="form.title" class="input-field" required />
           </div>
+          
           <div>
-            <label class="label">Image URL</label>
-            <input v-model="form.image_url" class="input-field" placeholder="https://..." />
+            <label class="label">Cover Image</label>
+            <div class="flex gap-2">
+                 <input 
+                   type="text" 
+                   v-model="form.image_url" 
+                   class="input-field flex-1" 
+                   placeholder="https://..." 
+                 />
+                 <label class="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center justify-center relative overflow-hidden">
+                     <span v-if="!uploading">Upload</span>
+                     <span v-else class="text-xs">Uploading...</span>
+                     <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" @change="(e) => uploadImage(e, 'cover')" :disabled="uploading" />
+                 </label>
+            </div>
           </div>
+
           <div>
             <label class="label">Category</label>
             <select v-model="form.category" class="input-field">
@@ -109,11 +124,17 @@
             </select>
           </div>
           <div>
-            <label class="label">Content</label>
-            <textarea v-model="form.content" rows="10" class="input-field" required></textarea>
+            <div class="flex justify-between items-center mb-1">
+                 <label class="label mb-0">Content (Markdown supported)</label>
+                 <label class="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-800 rounded cursor-pointer hover:bg-gray-200">
+                     {{ uploading ? 'Uploading...' : '+ Insert Image' }}
+                     <input type="file" class="hidden" accept="image/*" @change="(e) => uploadImage(e, 'content')" :disabled="uploading" />
+                 </label>
+            </div>
+            <textarea v-model="form.content" rows="12" class="input-field font-mono text-sm" required></textarea>
           </div>
-          <button type="submit" class="w-full py-3 bg-zen-accent-light dark:bg-zen-accent-dark text-white rounded-xl font-medium">
-            Publish
+          <button type="submit" class="w-full py-3 bg-zen-accent-light dark:bg-zen-accent-dark text-white rounded-xl font-medium" :disabled="uploading">
+            {{ isEditing ? 'Update Article' : 'Publish Article' }}
           </button>
         </form>
       </div>
@@ -135,12 +156,74 @@ const showModal = ref(false)
 const chartCanvas = ref(null)
 let chartInstance = null
 
+const isEditing = ref(false)
+const uploading = ref(false)
+const fileInput = ref(null)
+const contentFileInput = ref(null)
+
 const form = ref({
+  id: null,
   title: '',
   content: '',
   category: 'Technology',
   image_url: ''
 })
+
+
+
+async function uploadImage(event, target = 'cover') {
+  const file = event.target.files[0]
+  if (!file) return
+
+  uploading.value = true
+  const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '-')}`
+  
+  try {
+      const { data, error } = await supabase.storage
+        .from('article-images')
+        .upload(fileName, file)
+      
+      if (error) throw error
+
+      // Get public URL
+      const { data: publicData } = supabase.storage
+        .from('article-images')
+        .getPublicUrl(fileName)
+      
+      const publicUrl = publicData.publicUrl
+
+      if (target === 'cover') {
+        form.value.image_url = publicUrl
+      } else if (target === 'content') {
+        const markdownImage = `\n![Image](${publicUrl})\n`
+        form.value.content += markdownImage
+      }
+
+  } catch (error) {
+      alert('Upload failed: ' + error.message)
+      console.error(error)
+  } finally {
+      uploading.value = false
+  }
+}
+
+function openCreateModal() {
+  form.value = { id: null, title: '', content: '', category: 'Technology', image_url: '' }
+  isEditing.value = false
+  showModal.value = true
+}
+
+function openEditModal(article) {
+  form.value = { 
+    id: article.id, 
+    title: article.title, 
+    content: article.content, 
+    category: article.category, 
+    image_url: article.image_url 
+  }
+  isEditing.value = true
+  showModal.value = true
+}
 
 async function handleLogin() {
   if (username.value === 'Lazarus' && password.value === '0721') {
@@ -203,16 +286,35 @@ async function fetchArticles() {
   }
 }
 
-async function createArticle() {
-  const { error } = await supabase
-    .from('articles')
-    .insert([form.value])
-    
+async function saveArticle() {
+  const articleData = {
+    title: form.value.title,
+    content: form.value.content,
+    category: form.value.category,
+    image_url: form.value.image_url
+  }
+
+  let error = null
+
+  if (isEditing.value && form.value.id) {
+    // Update
+    const res = await supabase
+      .from('articles')
+      .update(articleData)
+      .eq('id', form.value.id)
+    error = res.error
+  } else {
+    // Create
+    const res = await supabase
+      .from('articles')
+      .insert([articleData])
+    error = res.error
+  }
+
   if (error) {
     alert(error.message)
   } else {
     showModal.value = false
-    form.value = { title: '', content: '', category: 'Technology', image_url: '' }
     fetchArticles()
   }
 }
