@@ -89,13 +89,108 @@
           </button>
         </div>
         
-        <button 
-          @click="shareArticle"
-          class="p-3 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-500"
-        >
-          <component :is="ShareIcon" class="w-5 h-5" />
-        </button>
+        <!-- Share Button with Dropdown -->
+        <div class="relative">
+          <button 
+            @click="toggleShareMenu"
+            class="flex items-center gap-2 px-6 py-3 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all active:scale-95"
+          >
+            <component :is="ShareIcon" class="w-5 h-5" />
+            <span class="font-medium hidden sm:inline">Share</span>
+          </button>
+          
+          <!-- Share Menu Dropdown -->
+          <Transition name="slide-fade">
+            <div 
+              v-if="showShareMenu"
+              class="absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-700 overflow-hidden z-50"
+            >
+              <div class="p-3 border-b border-gray-100 dark:border-zinc-800">
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Share this article</p>
+              </div>
+              
+              <div class="p-2">
+                <!-- Copy Link -->
+                <button
+                  @click="copyLink"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-left group"
+                >
+                  <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-zinc-700 transition-colors">
+                    <component :is="LinkIcon" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-200">Copy Link</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-500">Share anywhere</p>
+                  </div>
+                </button>
+                
+                <!-- WhatsApp -->
+                <button
+                  @click="shareToWhatsApp"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors text-left group"
+                >
+                  <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/40 transition-colors">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-200">WhatsApp</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-500">Share with friends</p>
+                  </div>
+                </button>
+                
+                <!-- Twitter / X -->
+                <button
+                  @click="shareToTwitter"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors text-left group"
+                >
+                  <div class="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center group-hover:bg-sky-200 dark:group-hover:bg-sky-900/40 transition-colors">
+                    <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-200">Twitter / X</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-500">Post on X</p>
+                  </div>
+                </button>
+                
+                <!-- Facebook -->
+                <button
+                  @click="shareToFacebook"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-left group"
+                >
+                  <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-900/40 transition-colors">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-200">Facebook</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-500">Share on Facebook</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
       </div>
+      
+      <!-- Toast Notification -->
+      <Transition name="toast">
+        <div 
+          v-if="showToast"
+          class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl shadow-2xl flex items-center gap-3 border border-gray-700 dark:border-gray-200"
+        >
+          <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <p class="font-medium">{{ toastMessage }}</p>
+        </div>
+      </Transition>
 
       <!-- Recommendations -->
       <section v-if="relatedArticles.length > 0" class="mt-16">
@@ -117,11 +212,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { marked } from 'marked'
-import { Heart, Share2, ArrowLeft } from 'lucide-vue-next'
+import { Heart, Share2, ArrowLeft, Link } from 'lucide-vue-next'
 import ChatAI from '../components/ai/ChatAI.vue'
 
 // Render standard markdown with breaks enabled (respects single Enter)
@@ -132,6 +227,7 @@ function renderMarkdown(text) {
 const HeartIcon = Heart
 const ShareIcon = Share2
 const ArrowLeftIcon = ArrowLeft
+const LinkIcon = Link
 
 const route = useRoute()
 const router = useRouter()
@@ -140,6 +236,9 @@ const loading = ref(true)
 const likeCount = ref(0)
 const hasLiked = ref(false)
 const relatedArticles = ref([])
+const showShareMenu = ref(false)
+const showToast = ref(false)
+const toastMessage = ref('')
 
 const readingTime = computed(() => {
   if (!article.value?.content) return 0
@@ -202,25 +301,61 @@ async function handleLike() {
   }
 }
 
-async function shareArticle() {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: article.value.title,
-        text: 'Read this amazing article on LazarusBlog',
-        url: window.location.href,
-      })
-    } catch (err) {
-      // Ignored
-    }
-  } else {
-    navigator.clipboard.writeText(window.location.href)
-    alert('Link copied to clipboard!')
+function toggleShareMenu() {
+  showShareMenu.value = !showShareMenu.value
+}
+
+function displayToast(message) {
+  toastMessage.value = message
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 3000)
+}
+
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(window.location.href)
+    displayToast('Link copied to clipboard!')
+    showShareMenu.value = false
+  } catch (err) {
+    console.error('Failed to copy:', err)
+    displayToast('Failed to copy link')
   }
+}
+
+function shareToWhatsApp() {
+  const text = encodeURIComponent(`Check out this article: ${article.value.title}\n${window.location.href}`)
+  window.open(`https://wa.me/?text=${text}`, '_blank')
+  showShareMenu.value = false
+  displayToast('Opening WhatsApp...')
+}
+
+function shareToTwitter() {
+  const text = encodeURIComponent(article.value.title)
+  const url = encodeURIComponent(window.location.href)
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank')
+  showShareMenu.value = false
+  displayToast('Opening Twitter...')
+}
+
+function shareToFacebook() {
+  const url = encodeURIComponent(window.location.href)
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank')
+  showShareMenu.value = false
+  displayToast('Opening Facebook...')
 }
 
 function goBack() {
   router.back()
+}
+
+// Close share menu when clicking outside
+function handleClickOutside(event) {
+  const shareMenu = event.target.closest('.relative')
+  if (!shareMenu && showShareMenu.value) {
+    showShareMenu.value = false
+  }
 }
 
 watch(() => route.params.id, () => {
@@ -232,9 +367,46 @@ watch(() => route.params.id, () => {
 onMounted(() => {
     hasLiked.value = !!localStorage.getItem(`liked_${route.params.id}`)
     fetchArticle()
+    document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
 <style scoped>
 /* No hack needed - using standard markdown rendering */
+
+/* Slide Fade Transition for Dropdown */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Toast Transition */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 20px);
+}
 </style>
