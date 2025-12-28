@@ -20,10 +20,17 @@
     <div v-else>
       <header class="flex justify-between items-center mb-12">
         <h1 class="text-3xl font-serif font-bold">Dashboard</h1>
-        <div class="flex gap-4">
-           <span class="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-full text-sm flex items-center">Admin: Lazarus</span>
-           <button @click="openCreateModal" class="px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium">
+        <div class="flex gap-3">
+           <span class="px-4 py-2 bg-gray-100 dark:bg-zinc-800 rounded-full text-sm flex items-center gap-2">
+             <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+             Admin: Lazarus
+           </span>
+           <button @click="openCreateModal" class="px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full font-medium hover:opacity-90 transition-opacity">
              + New Article
+           </button>
+           <button @click="handleLogout" class="px-6 py-2 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
+             <component :is="LogOutIcon" class="w-4 h-4" />
+             Logout
            </button>
         </div>
       </header>
@@ -147,6 +154,9 @@
 import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { supabase } from '../lib/supabase'
 import Chart from 'chart.js/auto'
+import { LogOut } from 'lucide-vue-next'
+
+const LogOutIcon = LogOut
 
 const isAuthenticated = ref(false)
 const username = ref('')
@@ -223,6 +233,28 @@ function openEditModal(article) {
   }
   isEditing.value = true
   showModal.value = true
+}
+
+async function handleLogout() {
+  if (!confirm('Are you sure you want to logout?')) return
+  
+  try {
+    // Sign out from Supabase
+    await supabase.auth.signOut()
+    
+    // Clear local storage
+    localStorage.removeItem('admin_session')
+    
+    // Update state
+    isAuthenticated.value = false
+    articles.value = []
+    
+    // Optional: Show success message
+    alert('Successfully logged out!')
+  } catch (error) {
+    console.error('Logout error:', error)
+    alert('Error logging out. Please try again.')
+  }
 }
 
 async function handleLogin() {

@@ -1,18 +1,26 @@
 <template>
-  <div v-if="loading" class="min-h-screen flex items-center justify-center">
-    <div class="animate-pulse flex flex-col items-center">
-      <div class="h-8 w-64 bg-gray-200 dark:bg-zinc-800 rounded mb-4"></div>
-      <div class="h-4 w-48 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+  <div class="relative min-h-screen">
+    <!-- Floating Back Button -->
+    <button 
+      @click="goBack"
+      class="fixed top-20 left-4 md:left-8 z-40 p-3 rounded-full bg-white/70 dark:bg-black/50 backdrop-blur-md border border-gray-200 dark:border-zinc-700 shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-zinc-900 transition-all group"
+      aria-label="Go Back"
+    >
+      <component :is="ArrowLeftIcon" class="w-5 h-5 text-gray-700 dark:text-gray-200 group-hover:-translate-x-1 transition-transform" />
+    </button>
+
+    <div v-if="loading" class="min-h-screen flex items-center justify-center">
+      <div class="animate-pulse flex flex-col items-center">
+        <div class="h-8 w-64 bg-gray-200 dark:bg-zinc-800 rounded mb-4"></div>
+        <div class="h-4 w-48 bg-gray-200 dark:bg-zinc-800 rounded"></div>
+      </div>
     </div>
-  </div>
 
-  <div v-else-if="!article" class="min-h-screen flex items-center justify-center">
-    <p class="text-xl text-gray-500">Article not found.</p>
-  </div>
+    <div v-else-if="!article" class="min-h-screen flex items-center justify-center">
+      <p class="text-xl text-gray-500">Article not found.</p>
+    </div>
 
-  <div v-else class="min-h-screen pb-20 bg-white dark:bg-zinc-950 transition-colors animate-fade-in">
-    <!-- Hero Image -->
-    <!-- Hero Image -->
+    <div v-else class="min-h-screen pb-20 bg-white dark:bg-zinc-950 transition-colors animate-fade-in">
     <!-- Hero Image -->
     <div v-if="article.image_url" class="relative w-full h-[50vh] md:h-[70vh] overflow-hidden group">
       <!-- Image with slow zoom effect -->
@@ -104,15 +112,16 @@
     </main>
 
     <ChatAI :context="article.content" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { marked } from 'marked'
-import { Heart, Share2 } from 'lucide-vue-next'
+import { Heart, Share2, ArrowLeft } from 'lucide-vue-next'
 import ChatAI from '../components/ai/ChatAI.vue'
 
 // Render standard markdown with breaks enabled (respects single Enter)
@@ -122,8 +131,10 @@ function renderMarkdown(text) {
 
 const HeartIcon = Heart
 const ShareIcon = Share2
+const ArrowLeftIcon = ArrowLeft
 
 const route = useRoute()
+const router = useRouter()
 const article = ref(null)
 const loading = ref(true)
 const likeCount = ref(0)
@@ -206,6 +217,10 @@ async function shareArticle() {
     navigator.clipboard.writeText(window.location.href)
     alert('Link copied to clipboard!')
   }
+}
+
+function goBack() {
+  router.back()
 }
 
 watch(() => route.params.id, () => {
