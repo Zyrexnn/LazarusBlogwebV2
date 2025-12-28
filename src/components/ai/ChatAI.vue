@@ -1,18 +1,20 @@
 <template>
-  <div v-if="visible" class="fixed bottom-6 right-6 z-50 w-full max-w-sm md:max-w-md animate-fade-in-up">
+  <div v-if="visible" class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 w-[calc(100%-2rem)] md:w-full md:max-w-md animate-fade-in-up flex justify-end pointer-events-none">
+    
     <!-- Chat Window -->
-    <div v-if="isOpen" class="glass-panel border border-white/20 dark:border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 h-[550px]">
+    <!-- Added pointer-events-auto to inner content so interactions work -->
+    <div v-if="isOpen" class="pointer-events-auto w-full glass-panel border border-white/20 dark:border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 h-[60vh] md:h-[550px] max-h-[80vh]">
       
       <!-- Header -->
-      <div class="p-5 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center">
+      <div class="p-4 md:p-5 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center cursor-grab active:cursor-grabbing">
         <div class="flex items-center gap-3">
-          <div class="relative w-3 h-3">
+          <div class="relative w-2.5 h-2.5 md:w-3 md:h-3">
             <div class="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-75"></div>
-            <div class="relative w-3 h-3 bg-green-500 rounded-full"></div>
+            <div class="relative w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 rounded-full"></div>
           </div>
           <div>
-             <h3 class="font-serif font-bold text-base text-gray-800 dark:text-gray-100">Lazarus Assistant</h3>
-             <p class="text-[10px] text-gray-500 uppercase tracking-widest font-sans">Ai Powered Context</p>
+             <h3 class="font-serif font-bold text-sm md:text-base text-gray-800 dark:text-gray-100">Lazarus Assistant</h3>
+             <p class="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest font-sans">Ai Powered Context</p>
           </div>
         </div>
         <button @click="isOpen = false" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors text-gray-400">
@@ -21,10 +23,10 @@
       </div>
       
       <!-- Messages -->
-      <div class="flex-1 overflow-y-auto p-5 space-y-6 bg-gray-50/30 dark:bg-zinc-900/30" ref="messagesContainer">
+      <div class="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 md:space-y-6 bg-gray-50/30 dark:bg-zinc-900/30" ref="messagesContainer">
         <div v-for="(msg, index) in messages" :key="index" :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']">
            <div :class="[
-             'max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-sm',
+             'max-w-[90%] md:max-w-[85%] rounded-2xl px-4 py-2.5 md:px-5 md:py-3 text-xs md:text-sm leading-relaxed shadow-sm break-words',
              msg.role === 'user' 
                ? 'bg-zen-accent-light dark:bg-zen-accent-dark text-white rounded-br-sm' 
                : 'bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 text-gray-700 dark:text-gray-300 rounded-bl-sm'
@@ -44,12 +46,12 @@
       </div>
 
       <!-- Input -->
-      <div class="p-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-t border-gray-100 dark:border-zinc-800">
+      <div class="p-3 md:p-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-t border-gray-100 dark:border-zinc-800">
         <form @submit.prevent="sendMessage" class="relative group">
           <input 
             v-model="input" 
             placeholder="Ask Lazarus..." 
-            class="w-full pl-5 pr-12 py-3.5 rounded-full bg-gray-50 dark:bg-zinc-800 border border-transparent focus:border-zen-accent-light dark:focus:border-zen-accent-dark focus:ring-0 transition-all text-sm shadow-inner"
+            class="w-full pl-5 pr-12 py-3 rounded-full bg-gray-50 dark:bg-zinc-800 border border-transparent focus:border-zen-accent-light dark:focus:border-zen-accent-dark focus:ring-0 transition-all text-xs md:text-sm shadow-inner"
             :disabled="isLoading"
           />
           <button 
@@ -68,11 +70,11 @@
     <button 
       v-else 
       @click="isOpen = true" 
-      class="float-right bg-white dark:bg-zinc-800 text-zen-accent-light dark:text-zen-accent-dark p-4 rounded-full shadow-xl border border-gray-100 dark:border-zinc-700 hover:scale-110 active:scale-95 transition-all duration-300 group relative overflow-hidden"
+      class="pointer-events-auto float-right bg-white dark:bg-zinc-800 text-zen-accent-light dark:text-zen-accent-dark p-4 rounded-full shadow-xl border border-gray-100 dark:border-zinc-700 hover:scale-110 active:scale-95 transition-all duration-300 group relative overflow-hidden"
     >
       <div class="absolute inset-0 bg-zen-accent-light/10 dark:bg-zen-accent-dark/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <component :is="BotIcon" class="w-6 h-6 relative z-10" />
-      <span class="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 whitespace-nowrap transition-all pointer-events-none translate-x-2 group-hover:translate-x-0">
+      <span class="hidden md:block absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 whitespace-nowrap transition-all pointer-events-none translate-x-2 group-hover:translate-x-0">
         Ask Lazarus
       </span>
     </button>

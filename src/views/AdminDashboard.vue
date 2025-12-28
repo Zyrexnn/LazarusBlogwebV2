@@ -43,29 +43,31 @@
       </div>
 
       <!-- Article List -->
-      <div class="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-gray-50 dark:bg-zinc-950 text-xs uppercase text-gray-500">
-            <tr>
-              <th class="px-6 py-4">Title</th>
-              <th class="px-6 py-4">Category</th>
-              <th class="px-6 py-4">Date</th>
-              <th class="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-zinc-800">
-            <tr v-for="article in articles" :key="article.id" class="hover:bg-gray-50 dark:hover:bg-zinc-800/50">
-              <td class="px-6 py-4 font-medium">{{ article.title }}</td>
-              <td class="px-6 py-4">
-                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-800 rounded-full">{{ article.category }}</span>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-500">{{ new Date(article.created_at).toLocaleDateString() }}</td>
-              <td class="px-6 py-4 text-right gap-2">
-                <button @click="deleteArticle(article.id)" class="text-red-500 hover:underline text-sm ml-4">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl overflow-hidden mt-8">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+            <thead class="bg-gray-50 dark:bg-zinc-950 text-xs uppercase text-gray-500">
+                <tr>
+                <th class="px-6 py-4">Title</th>
+                <th class="px-6 py-4">Category</th>
+                <th class="px-6 py-4">Date</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-zinc-800">
+                <tr v-for="article in articles" :key="article.id" class="hover:bg-gray-50 dark:hover:bg-zinc-800/50">
+                <td class="px-6 py-4 font-medium">{{ article.title }}</td>
+                <td class="px-6 py-4">
+                    <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-800 rounded-full whitespace-nowrap">{{ article.category }}</span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{{ new Date(article.created_at).toLocaleDateString() }}</td>
+                <td class="px-6 py-4 text-right gap-2 whitespace-nowrap">
+                    <button @click="deleteArticle(article.id)" class="text-red-500 hover:underline text-sm ml-4">Delete</button>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
       </div>
     </div>
     

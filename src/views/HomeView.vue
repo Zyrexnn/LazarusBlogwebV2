@@ -1,49 +1,55 @@
 <template>
   <div class="min-h-screen pb-20">
     <!-- Hero Section -->
-    <header class="py-24 md:py-36 text-center px-4 animate-fade-in-up">
-      <h1 class="text-6xl md:text-8xl font-serif font-bold mb-6 text-zen-text-light dark:text-zen-text-dark tracking-tight">
+    <header class="py-16 md:py-32 text-center px-4 animate-fade-in-up">
+      <h1 class="text-5xl md:text-8xl font-serif font-bold mb-4 md:mb-6 text-zen-text-light dark:text-zen-text-dark tracking-tight leading-tight">
         Lazarus<span class="italic font-light text-zen-accent-light dark:text-zen-accent-dark">Blog</span>
       </h1>
-      <p class="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto font-light leading-relaxed">
+      <p class="text-base md:text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto font-light leading-relaxed px-4">
         Curated thoughts on technology, design, and the art of clarity.
       </p>
     </header>
 
     <!-- Filters & Search -->
-    <div class="container mx-auto px-4 mb-20">
-      <div class="flex flex-col items-center gap-8">
+    <div class="container mx-auto px-4 mb-12 md:mb-20">
+      <div class="flex flex-col items-center gap-6 md:gap-8">
         
         <!-- Search -->
-        <div class="relative w-full max-w-lg group">
+        <div class="relative w-full max-w-lg group px-2 md:px-0">
           <input 
             v-model="searchQuery"
             type="text" 
             placeholder="Search for clarity..." 
-            class="w-full pl-6 pr-12 py-4 rounded-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-sm focus:shadow-lg focus:border-zen-accent-light dark:focus:border-zen-accent-dark focus:ring-0 transition-all text-base text-center placeholder-gray-400"
+            class="w-full pl-6 pr-12 py-3 md:py-4 rounded-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-sm focus:shadow-lg focus:border-zen-accent-light dark:focus:border-zen-accent-dark focus:ring-0 transition-all text-sm md:text-base text-center placeholder-gray-400"
           />
-          <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-zen-accent-light dark:group-focus-within:text-zen-accent-dark transition-colors">
+          <div class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-zen-accent-light dark:group-focus-within:text-zen-accent-dark transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
         </div>
 
-        <!-- Categories -->
-        <div class="flex gap-3 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto scrollbar-hide justify-start md:justify-center">
-          <button 
-            v-for="cat in categories" 
-            :key="cat"
-            @click="selectedCategory = cat"
-            :class="[
-              'px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap border',
-              selectedCategory === cat 
-                ? 'bg-black dark:bg-white text-white dark:text-black border-transparent shadow-lg transform scale-105' 
-                : 'bg-transparent border-gray-200 dark:border-zinc-800 text-gray-500 dark:text-gray-400 hover:border-zen-accent-light dark:hover:border-zen-accent-dark hover:text-zen-accent-light dark:hover:text-zen-accent-dark'
-            ]"
-          >
-            {{ cat }}
-          </button>
+        <!-- Categories (Responsive Scroll) -->
+        <div class="relative w-full max-w-4xl group">
+          <!-- Gradient Masks -->
+          <div class="absolute left-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-r from-zen-bg-light dark:from-zen-bg-dark to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute right-0 top-0 bottom-0 w-8 md:w-16 bg-gradient-to-l from-zen-bg-light dark:from-zen-bg-dark to-transparent z-10 pointer-events-none"></div>
+
+          <div class="flex gap-2 md:gap-3 overflow-x-auto pb-4 pt-1 w-full scrollbar-hide px-8 md:px-16 snap-x">
+            <button 
+              v-for="cat in categories" 
+              :key="cat"
+              @click="selectedCategory = cat"
+              :class="[
+                'snap-center px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap border flex-shrink-0',
+                selectedCategory === cat 
+                  ? 'bg-black dark:bg-white text-white dark:text-black border-transparent shadow-lg scale-105' 
+                  : 'bg-transparent border-gray-200 dark:border-zinc-800 text-gray-500 dark:text-gray-400 hover:border-zen-accent-light dark:hover:border-zen-accent-dark hover:text-zen-accent-light dark:hover:text-zen-accent-dark'
+              ]"
+            >
+              {{ cat }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
